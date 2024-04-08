@@ -9,6 +9,7 @@ import {
   DidChangeTextDocumentNotification,
   DidCloseTextDocumentNotification,
   DidOpenTextDocumentNotification,
+  DidSaveTextDocumentNotification,
 } from "./types/notification";
 import {
   CodeLensRequest,
@@ -149,6 +150,16 @@ process.stdin.on('data', data => {
       log('Changed %s', notification.params.textDocument.uri);
 
       state.changeTextDocument(notification);
+
+      break;
+    }
+
+    case 'textDocument/didSave': {
+      let notification = message as DidSaveTextDocumentNotification;
+
+      log('Saved %s', notification.params.textDocument.uri);
+
+      state.saveTextDocument(notification);
 
       break;
     }

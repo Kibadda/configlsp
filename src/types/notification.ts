@@ -22,6 +22,15 @@ export interface DidChangeTextDocumentNotification extends Notification {
   },
 }
 
+export interface DidSaveTextDocumentNotification extends Notification {
+  params: {
+    textDocument: {
+      uri: string,
+    },
+    text?: string,
+  },
+}
+
 export interface DidCloseTextDocumentNotification extends Notification {
   params: {
     textDocument: {

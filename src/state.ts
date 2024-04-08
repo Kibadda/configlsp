@@ -5,6 +5,7 @@ import {
   DidChangeTextDocumentNotification,
   DidCloseTextDocumentNotification,
   DidOpenTextDocumentNotification,
+  DidSaveTextDocumentNotification,
 } from "./types/notification";
 import {
   CodeLensRequest,
@@ -63,6 +64,13 @@ export class State {
 
   public openTextDocument(notification: DidOpenTextDocumentNotification): void {
     this.textDocuments.set(notification.params.textDocument.uri, notification.params.textDocument.text);
+    this.calculateCodeLenses(notification.params.textDocument.uri);
+  }
+
+  public saveTextDocument(notification: DidSaveTextDocumentNotification): void {
+    if (notification.params.text) {
+      this.textDocuments.set(notification.params.textDocument.uri, notification.params.text);
+    }
     this.calculateCodeLenses(notification.params.textDocument.uri);
   }
 
