@@ -17,3 +17,22 @@ export interface Notification extends Message {
   method: string,
   params?: object,
 }
+
+export interface InitializeRequest extends Request {
+  params: {
+    clientInfo?: {
+      name: string,
+      version?: string,
+    },
+  },
+}
+
+export interface InitializeResponse extends Response {
+  result: {
+    capabilities: object,
+    serverInfo?: {
+      name: string,
+      version?: string,
+    },
+  },
+}
