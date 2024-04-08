@@ -1,13 +1,14 @@
 import { exec } from "child_process";
-import { Treesitter } from "./treesitter";
+import { Plugin, plugins } from "./treesitter";
 import { CodeLens, Hover } from "./lsp/basic";
 import { DidOpenNotification, DidSaveNotification, DidChangeNotification, DidCloseNotification } from "./lsp/notification";
 import { CodeLensRequest, ExecuteCommandRequest, HoverRequest } from "./lsp/request";
 
 export class State {
   private textDocuments: Map<string, string> = new Map();
-  private codeLenses: Map<string, CodeLens[]> = new Map();
   private commands: Map<string, Function> = new Map();
+
+  private plugins: Map<string, Plugin[]> = new Map();
 
   public isInitialized: boolean = false;
   public shouldExit: boolean = false;
@@ -18,52 +19,26 @@ export class State {
     });
   }
 
-  private calculateCodeLenses(uri: string): void {
+  private setPlugins(uri: string): void {
     let document = this.textDocuments.get(uri);
 
     if (!document) {
       return;
     }
 
-    let codeLenses = [];
-
-    for (const plugin of Treesitter.plugins(document)) {
-      let codeLens: basic.CodeLens = {
-        range: {
-          start: {
-            line: plugin.start.row,
-            character: plugin.start.column,
-          },
-          end: {
-            line: plugin.end.row,
-            character: plugin.end.column,
-          },
-        },
-        command: {
-          title: 'open plugin',
-          command: 'open_plugin_in_browser',
-          arguments: {
-            text: plugin.text,
-          },
-        },
-      };
-
-      codeLenses.push(codeLens);
-    }
-
-    this.codeLenses.set(uri, codeLenses);
+    this.plugins.set(uri, plugins(document));
   }
 
   public openTextDocument(notification: DidOpenNotification): void {
     this.textDocuments.set(notification.params.textDocument.uri, notification.params.textDocument.text);
-    this.calculateCodeLenses(notification.params.textDocument.uri);
+    this.setPlugins(notification.params.textDocument.uri);
   }
 
   public saveTextDocument(notification: DidSaveNotification): void {
     if (notification.params.text) {
       this.textDocuments.set(notification.params.textDocument.uri, notification.params.text);
     }
-    this.calculateCodeLenses(notification.params.textDocument.uri);
+    this.setPlugins(notification.params.textDocument.uri);
   }
 
   public changeTextDocument(notification: DidChangeNotification): void {
@@ -119,16 +94,40 @@ export class State {
     }
 
     this.textDocuments.set(notification.params.textDocument.uri, document);
-    this.calculateCodeLenses(notification.params.textDocument.uri);
+    this.setPlugins(notification.params.textDocument.uri);
   }
 
   public closeTextDocument(notification: DidCloseNotification): void {
     this.textDocuments.delete(notification.params.textDocument.uri);
-    this.codeLenses.delete(notification.params.textDocument.uri);
+    this.plugins.delete(notification.params.textDocument.uri);
   }
 
-  public getCodeLenses(request: CodeLensRequest): CodeLens[] | null {
-    return this.codeLenses.get(request.params.textDocument.uri) ?? null;
+  public getCodeLenses(request: CodeLensRequest): CodeLens[] {
+    let codelenses: CodeLens[] = [];
+
+    for (const plugin of this.plugins.get(request.params.textDocument.uri) ?? []) {
+      codelenses.push({
+        range: {
+          start: {
+            line: plugin.range.start.row,
+            character: plugin.range.start.column,
+          },
+          end: {
+            line: plugin.range.end.row,
+            character: plugin.range.end.column,
+          },
+        },
+        command: {
+          title: 'open plugin',
+          command: 'open_plugin_in_browser',
+          arguments: {
+            text: plugin.text,
+          },
+        },
+      });
+    }
+
+    return codelenses;
   }
 
   public getCommands(): string[] {
