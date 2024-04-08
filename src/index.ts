@@ -26,7 +26,7 @@ log('Starting');
 
 const state = new State();
 
-function response(result: Response): void {
+function write(result: base.Response): void {
   process.stdout.write(encode(result));
 }
 
@@ -45,7 +45,7 @@ process.stdin.on('data', data => {
       },
     };
 
-    response(result);
+    write(result);
 
     return;
   }
@@ -62,7 +62,7 @@ process.stdin.on('data', data => {
       },
     };
 
-    response(result);
+    write(result);
 
     return;
   }
@@ -97,7 +97,7 @@ process.stdin.on('data', data => {
         },
       };
 
-      response(result);
+      write(result);
 
       break;
     }
@@ -123,7 +123,7 @@ process.stdin.on('data', data => {
         result: null,
       }
 
-      response(result);
+      write(result);
 
       break;
     }
@@ -185,7 +185,7 @@ process.stdin.on('data', data => {
         result: state.getCodeLenses(request),
       };
 
-      response(result);
+      write(result);
 
       break;
     }
@@ -203,7 +203,7 @@ process.stdin.on('data', data => {
         result: null,
       };
 
-      response(result);
+      write(result);
 
       break;
     }
@@ -221,7 +221,7 @@ process.stdin.on('data', data => {
         },
       };
 
-      response(result);
+      write(result);
 
       break;
     }
