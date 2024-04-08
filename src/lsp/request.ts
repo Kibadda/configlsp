@@ -1,6 +1,6 @@
-import * as base from "./base";
+import { Request } from "./base";
 
-export interface InitializeRequest extends base.Request {
+export interface InitializeRequest extends Request {
   params: {
     clientInfo?: {
       name: string,
@@ -9,7 +9,7 @@ export interface InitializeRequest extends base.Request {
   },
 }
 
-export interface CodeLensRequest extends base.Request {
+export interface CodeLensRequest extends Request {
   params: {
     textDocument: {
       uri: string
@@ -17,7 +17,7 @@ export interface CodeLensRequest extends base.Request {
   },
 }
 
-export interface ExecuteCommandRequest extends base.Request {
+export interface ExecuteCommandRequest extends Request {
   params: {
     command: string,
     arguments?: object,

@@ -1,16 +1,16 @@
 import { log } from "./log";
 import { decode, encode } from "./rpc";
 import { State } from "./state";
-import * as base from "./types/base";
-import * as notification from "./types/notification";
-import * as request from "./types/request";
-import * as response from "./types/response";
+import { Response, Request } from "./lsp/base";
+import { DidOpenNotification, DidChangeNotification, DidSaveNotification, DidCloseNotification } from "./lsp/notification";
+import { InitializeRequest, CodeLensRequest, ExecuteCommandRequest, HoverRequest } from "./lsp/request";
+import { InitializeResponse, CodeLensResponse, ExecuteCommandResponse, HoverResponse } from "./lsp/response";
 
 log('Starting');
 
 const state = new State();
 
-function write(result: base.Response): void {
+function write(result: Response): void {
   process.stdout.write(encode(result));
 }
 
@@ -20,7 +20,7 @@ process.stdin.on('data', data => {
   if (!message) {
     log('Something went wrong: %s', data.toString());
 
-    let result: base.Response = {
+    let result: Response = {
       id: null,
       jsonrpc: '2.0',
       error: {
@@ -37,7 +37,7 @@ process.stdin.on('data', data => {
   if (!['initialize', 'initialized', 'exit'].includes(message.method) && !state.isInitialized) {
     log('request/notification %s before initialized', message.method);
 
-    let result: base.Response = {
+    let result: Response = {
       id: null,
       jsonrpc: '2.0',
       error: {
@@ -59,11 +59,11 @@ process.stdin.on('data', data => {
 
   switch (message.method) {
     case 'initialize': {
-      let request = message as request.InitializeRequest;
+      let request = message as InitializeRequest;
 
       log('Connected to: %s %s', request.params.clientInfo?.name ?? 'n/a', request.params.clientInfo?.version ?? 'n/a');
 
-      let result: response.InitializeResponse = {
+      let result: InitializeResponse = {
         id: request.id,
         jsonrpc: request.jsonrpc,
         result: {
@@ -95,13 +95,13 @@ process.stdin.on('data', data => {
     }
 
     case 'shutdown': {
-      let request: base.Request = message as base.Request;
+      let request: Request = message as Request;
 
       log('shutdown');
 
       state.shouldExit = true;
 
-      let result: base.Response = {
+      let result: Response = {
         id: request.id,
         jsonrpc: request.jsonrpc,
         result: null,
@@ -119,7 +119,7 @@ process.stdin.on('data', data => {
     }
 
     case 'textDocument/didOpen': {
-      let notification = message as notification.DidOpenNotification;
+      let notification = message as DidOpenNotification;
 
       log('Opened %s', notification.params.textDocument.uri);
 
@@ -129,7 +129,7 @@ process.stdin.on('data', data => {
     }
 
     case 'textDocument/didChange': {
-      let notification = message as notification.DidChangeNotification;
+      let notification = message as DidChangeNotification;
 
       log('Changed %s', notification.params.textDocument.uri);
 
@@ -139,7 +139,7 @@ process.stdin.on('data', data => {
     }
 
     case 'textDocument/didSave': {
-      let notification = message as notification.DidSaveNotification;
+      let notification = message as DidSaveNotification;
 
       log('Saved %s', notification.params.textDocument.uri);
 
@@ -149,7 +149,7 @@ process.stdin.on('data', data => {
     }
 
     case 'textDocument/didClose': {
-      let notification = message as notification.DidCloseNotification;
+      let notification = message as DidCloseNotification;
 
       log('Closed %s', notification.params.textDocument.uri);
 
@@ -159,11 +159,11 @@ process.stdin.on('data', data => {
     }
 
     case 'textDocument/codeLens': {
-      let request = message as request.CodeLensRequest;
+      let request = message as CodeLensRequest;
 
       log('requesting codelenses for %s', request.params.textDocument.uri);
 
-      let result: response.CodeLensResponse = {
+      let result: CodeLensResponse = {
         id: request.id,
         jsonrpc: request.jsonrpc,
         result: state.getCodeLenses(request),
@@ -175,13 +175,13 @@ process.stdin.on('data', data => {
     }
 
     case 'workspace/executeCommand': {
-      let request = message as request.ExecuteCommandRequest;
+      let request = message as ExecuteCommandRequest;
 
       log('requesting command %s', request.params.command);
 
       state.executeCommand(request);
 
-      let result: response.ExecuteCommandResponse = {
+      let result: ExecuteCommandResponse = {
         id: request.id,
         jsonrpc: request.jsonrpc,
         result: null,
@@ -196,7 +196,7 @@ process.stdin.on('data', data => {
       log('Method %s not found', message.method);
       log(JSON.stringify(message, null, 2));
 
-      let result: base.Response = {
+      let result: Response = {
         id: null,
         jsonrpc: '2.0',
         error: {
