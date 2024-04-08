@@ -11,11 +11,16 @@ import {
   ExecuteCommandResponse,
   InitializeRequest,
   InitializeResponse,
+  Response,
 } from "./types";
 
 log('Starting');
 
 const state = new State();
+
+function response(result: Response): void {
+  process.stdout.write(encode(result));
+}
 
 process.stdin.on('data', data => {
   let message = decode(data);
@@ -50,7 +55,7 @@ process.stdin.on('data', data => {
         },
       };
 
-      process.stdout.write(encode(result));
+      response(result);
 
       break;
     }
@@ -96,7 +101,7 @@ process.stdin.on('data', data => {
         result: state.getCodeLenses(request),
       };
 
-      process.stdout.write(encode(result));
+      response(result);
 
       break;
     }
@@ -114,7 +119,7 @@ process.stdin.on('data', data => {
         result: null,
       };
 
-      process.stdout.write(encode(result));
+      response(result);
 
       break;
     }
