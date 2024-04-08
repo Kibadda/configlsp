@@ -1,4 +1,7 @@
+import { Treesitter } from "./treesitter";
 import {
+  CodeLens,
+  CodeLensRequest,
   DidChangeTextDocumentNotification,
   DidCloseTextDocumentNotification,
   DidOpenTextDocumentNotification,
@@ -6,9 +9,47 @@ import {
 
 export class State {
   private textDocuments: Map<string, string> = new Map<string, string>();
+  private codeLenses: Map<string, CodeLens[]> = new Map<string, CodeLens[]>();
+
+  private calculateCodeLenses(uri: string): void {
+    let document = this.textDocuments.get(uri);
+
+    if (!document) {
+      return;
+    }
+
+    let codeLenses = [];
+
+    for (const plugin of Treesitter.plugins(document)) {
+      let codeLens: CodeLens = {
+        range: {
+          start: {
+            line: plugin.start.row,
+            character: plugin.start.column,
+          },
+          end: {
+            line: plugin.end.row,
+            character: plugin.end.column,
+          },
+        },
+        command: {
+          title: 'open plugin',
+          command: 'open_plugin_in_browser',
+          arguments: {
+            text: plugin.text,
+          },
+        },
+      };
+
+      codeLenses.push(codeLens);
+    }
+
+    this.codeLenses.set(uri, codeLenses);
+  }
 
   public openTextDocument(notification: DidOpenTextDocumentNotification): void {
     this.textDocuments.set(notification.params.textDocument.uri, notification.params.textDocument.text);
+    this.calculateCodeLenses(notification.params.textDocument.uri);
   }
 
   public changeTextDocument(notification: DidChangeTextDocumentNotification): void {
@@ -64,9 +105,15 @@ export class State {
     }
 
     this.textDocuments.set(notification.params.textDocument.uri, document);
+    this.calculateCodeLenses(notification.params.textDocument.uri);
   }
 
   public closeTextDocument(notification: DidCloseTextDocumentNotification): void {
     this.textDocuments.delete(notification.params.textDocument.uri);
+    this.codeLenses.delete(notification.params.textDocument.uri);
+  }
+
+  public getCodeLenses(request: CodeLensRequest): CodeLens[] | null {
+    return this.codeLenses.get(request.params.textDocument.uri) ?? null;
   }
 }

@@ -31,6 +31,7 @@ export interface InitializeResponse extends Response {
   result: {
     capabilities: {
       textDocumentSync?: number,
+      codeLensProvider?: object,
     },
     serverInfo?: {
       name: string,
@@ -76,4 +77,25 @@ export interface DidCloseTextDocumentNotification extends Notification {
       uri: string,
     },
   },
+}
+
+export interface CodeLensRequest extends Request {
+  params: {
+    textDocument: {
+      uri: string
+    },
+  },
+}
+
+export interface CodeLens {
+  range: Range,
+  command: {
+    title: string,
+    command: string,
+    arguments?: object,
+  },
+}
+
+export interface CodeLensResponse extends Response {
+  result: CodeLens[] | null,
 }

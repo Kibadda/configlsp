@@ -2,6 +2,8 @@ import { log } from "./log";
 import { decode, encode } from "./rpc";
 import { State } from "./state";
 import {
+  CodeLensRequest,
+  CodeLensResponse,
   DidChangeTextDocumentNotification,
   DidCloseTextDocumentNotification,
   DidOpenTextDocumentNotification,
@@ -38,6 +40,7 @@ process.stdin.on('data', data => {
           },
           capabilities: {
             textDocumentSync: 2,
+            codeLensProvider: {},
           },
         },
       };
@@ -73,6 +76,22 @@ process.stdin.on('data', data => {
       log('Closed %s', notification.params.textDocument.uri);
 
       state.closeTextDocument(notification);
+
+      break;
+    }
+
+    case 'textDocument/codeLens': {
+      let request = message as CodeLensRequest;
+
+      log('requesting codelenses for %s', request.params.textDocument.uri);
+
+      let result: CodeLensResponse = {
+        id: request.id,
+        jsonrpc: request.jsonrpc,
+        result: state.getCodeLenses(request),
+      };
+
+      process.stdout.write(encode(result));
 
       break;
     }

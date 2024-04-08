@@ -13,5 +13,9 @@
   "devDependencies": {
     "@types/node": "^20.12.2",
     "typescript": "^5.4.3"
+  },
+  "dependencies": {
+    "@tree-sitter-grammars/tree-sitter-lua": "^0.1.0",
+    "tree-sitter": "^0.21.1"
   }
 }
