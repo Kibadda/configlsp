@@ -1,11 +1,7 @@
 import { log } from "./log";
-import {
-  Notification,
-  Request,
-  Response,
-} from "./types/base";
+import * as base from "./types/base";
 
-export function decode(data: Buffer): Request | Notification | null {
+export function decode(data: Buffer): base.Request | base.Notification | null {
   let split = data.toString().split(/\r\n\r\n/);
 
   if (split.length != 2) {
@@ -37,7 +33,7 @@ export function decode(data: Buffer): Request | Notification | null {
   return JSON.parse(content);
 }
 
-export function encode(data: Response): string {
+export function encode(data: base.Response): string {
   let content = JSON.stringify(data);
 
   return `Content-Length: ${content.length}\r\n\r\n${content}`;

@@ -1,7 +1,7 @@
-import { Response } from "./base";
-import { CodeLens } from "./basic";
+import * as base from "./base";
+import * as basic from "./basic";
 
-export interface InitializeResponse extends Response {
+export interface InitializeResponse extends base.Response {
   result: {
     capabilities: {
       textDocumentSync?: number,
@@ -17,10 +17,10 @@ export interface InitializeResponse extends Response {
   },
 }
 
-export interface CodeLensResponse extends Response {
-  result: CodeLens[] | null,
+export interface CodeLensResponse extends base.Response {
+  result: basic.CodeLens[] | null,
 }
 
-export interface ExecuteCommandResponse extends Response {
+export interface ExecuteCommandResponse extends base.Response {
   result: null,
 }

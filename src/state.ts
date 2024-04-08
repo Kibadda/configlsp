@@ -1,20 +1,12 @@
 import { exec } from "child_process";
 import { Treesitter } from "./treesitter";
-import { CodeLens } from "./types/basic";
-import {
-  DidChangeTextDocumentNotification,
-  DidCloseTextDocumentNotification,
-  DidOpenTextDocumentNotification,
-  DidSaveTextDocumentNotification,
-} from "./types/notification";
-import {
-  CodeLensRequest,
-  ExecuteCommandRequest,
-} from "./types/request";
+import * as basic from "./types/basic";
+import * as notification from "./types/notification";
+import * as request from "./types/request";
 
 export class State {
   private textDocuments: Map<string, string> = new Map<string, string>();
-  private codeLenses: Map<string, CodeLens[]> = new Map<string, CodeLens[]>();
+  private codeLenses: Map<string, basic.CodeLens[]> = new Map<string, basic.CodeLens[]>();
   private commands: Map<string, Function> = new Map<string, Function>();
 
   public isInitialized: boolean = false;
@@ -36,7 +28,7 @@ export class State {
     let codeLenses = [];
 
     for (const plugin of Treesitter.plugins(document)) {
-      let codeLens: CodeLens = {
+      let codeLens: basic.CodeLens = {
         range: {
           start: {
             line: plugin.start.row,
@@ -62,19 +54,19 @@ export class State {
     this.codeLenses.set(uri, codeLenses);
   }
 
-  public openTextDocument(notification: DidOpenTextDocumentNotification): void {
+  public openTextDocument(notification: notification.DidOpenNotification): void {
     this.textDocuments.set(notification.params.textDocument.uri, notification.params.textDocument.text);
     this.calculateCodeLenses(notification.params.textDocument.uri);
   }
 
-  public saveTextDocument(notification: DidSaveTextDocumentNotification): void {
+  public saveTextDocument(notification: notification.DidSaveNotification): void {
     if (notification.params.text) {
       this.textDocuments.set(notification.params.textDocument.uri, notification.params.text);
     }
     this.calculateCodeLenses(notification.params.textDocument.uri);
   }
 
-  public changeTextDocument(notification: DidChangeTextDocumentNotification): void {
+  public changeTextDocument(notification: notification.DidChangeNotification): void {
     let document = this.textDocuments.get(notification.params.textDocument.uri);
 
     if (!document) {
@@ -130,12 +122,12 @@ export class State {
     this.calculateCodeLenses(notification.params.textDocument.uri);
   }
 
-  public closeTextDocument(notification: DidCloseTextDocumentNotification): void {
+  public closeTextDocument(notification: notification.DidCloseNotification): void {
     this.textDocuments.delete(notification.params.textDocument.uri);
     this.codeLenses.delete(notification.params.textDocument.uri);
   }
 
-  public getCodeLenses(request: CodeLensRequest): CodeLens[] | null {
+  public getCodeLenses(request: request.CodeLensRequest): basic.CodeLens[] | null {
     return this.codeLenses.get(request.params.textDocument.uri) ?? null;
   }
 
@@ -147,7 +139,7 @@ export class State {
     return keys;
   }
 
-  public executeCommand(request: ExecuteCommandRequest): void {
+  public executeCommand(request: request.ExecuteCommandRequest): void {
     let func = this.commands.get(request.params.command);
 
     if (func) {

@@ -1,7 +1,7 @@
-import { Notification } from "./base";
-import { Range } from "./basic";
+import * as base from "./base";
+import * as basic from "./basic";
 
-export interface DidOpenTextDocumentNotification extends Notification {
+export interface DidOpenNotification extends base.Notification {
   params: {
     textDocument: {
       uri: string,
@@ -10,19 +10,19 @@ export interface DidOpenTextDocumentNotification extends Notification {
   },
 }
 
-export interface DidChangeTextDocumentNotification extends Notification {
+export interface DidChangeNotification extends base.Notification {
   params: {
     textDocument: {
       uri: string,
     },
     contentChanges: {
-      range: Range,
+      range: basic.Range,
       text: string,
     }[],
   },
 }
 
-export interface DidSaveTextDocumentNotification extends Notification {
+export interface DidSaveNotification extends base.Notification {
   params: {
     textDocument: {
       uri: string,
@@ -31,7 +31,7 @@ export interface DidSaveTextDocumentNotification extends Notification {
   },
 }
 
-export interface DidCloseTextDocumentNotification extends Notification {
+export interface DidCloseNotification extends base.Notification {
   params: {
     textDocument: {
       uri: string,
