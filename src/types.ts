@@ -29,10 +29,51 @@ export interface InitializeRequest extends Request {
 
 export interface InitializeResponse extends Response {
   result: {
-    capabilities: object,
+    capabilities: {
+      textDocumentSync?: number,
+    },
     serverInfo?: {
       name: string,
       version?: string,
+    },
+  },
+}
+
+interface Position {
+  line: number,
+  character: number,
+}
+
+interface Range {
+  start: Position,
+  end: Position,
+}
+
+export interface DidOpenTextDocumentNotification extends Notification {
+  params: {
+    textDocument: {
+      uri: string,
+      text: string,
+    },
+  },
+}
+
+export interface DidChangeTextDocumentNotification extends Notification {
+  params: {
+    textDocument: {
+      uri: string,
+    },
+    contentChanges: {
+      range: Range,
+      text: string,
+    }[],
+  },
+}
+
+export interface DidCloseTextDocumentNotification extends Notification {
+  params: {
+    textDocument: {
+      uri: string,
     },
   },
 }
