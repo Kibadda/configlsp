@@ -7,6 +7,8 @@ import {
   DidChangeTextDocumentNotification,
   DidCloseTextDocumentNotification,
   DidOpenTextDocumentNotification,
+  ExecuteCommandRequest,
+  ExecuteCommandResponse,
   InitializeRequest,
   InitializeResponse,
 } from "./types";
@@ -41,6 +43,9 @@ process.stdin.on('data', data => {
           capabilities: {
             textDocumentSync: 2,
             codeLensProvider: {},
+            executeCommandProvider: {
+              commands: state.getCommands(),
+            },
           },
         },
       };
@@ -89,6 +94,24 @@ process.stdin.on('data', data => {
         id: request.id,
         jsonrpc: request.jsonrpc,
         result: state.getCodeLenses(request),
+      };
+
+      process.stdout.write(encode(result));
+
+      break;
+    }
+
+    case 'workspace/executeCommand': {
+      let request = message as ExecuteCommandRequest;
+
+      log('requesting command %s', request.params.command);
+
+      state.executeCommand(request);
+
+      let result: ExecuteCommandResponse = {
+        id: request.id,
+        jsonrpc: request.jsonrpc,
+        result: null,
       };
 
       process.stdout.write(encode(result));

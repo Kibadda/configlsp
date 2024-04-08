@@ -1,3 +1,4 @@
+import { exec } from "child_process";
 import { Treesitter } from "./treesitter";
 import {
   CodeLens,
@@ -5,11 +6,19 @@ import {
   DidChangeTextDocumentNotification,
   DidCloseTextDocumentNotification,
   DidOpenTextDocumentNotification,
+  ExecuteCommandRequest,
 } from "./types";
 
 export class State {
   private textDocuments: Map<string, string> = new Map<string, string>();
   private codeLenses: Map<string, CodeLens[]> = new Map<string, CodeLens[]>();
+  private commands: Map<string, Function> = new Map<string, Function>();
+
+  constructor() {
+    this.commands.set('open_plugin_in_browser', function(data: { text: string }) {
+      exec(`xdg-open https://github.com/${data.text}`);
+    });
+  }
 
   private calculateCodeLenses(uri: string): void {
     let document = this.textDocuments.get(uri);
@@ -115,5 +124,21 @@ export class State {
 
   public getCodeLenses(request: CodeLensRequest): CodeLens[] | null {
     return this.codeLenses.get(request.params.textDocument.uri) ?? null;
+  }
+
+  public getCommands(): string[] {
+    let keys: string[] = [];
+
+    this.commands.forEach((_, key) => keys.push(key));
+
+    return keys;
+  }
+
+  public executeCommand(request: ExecuteCommandRequest): void {
+    let func = this.commands.get(request.params.command);
+
+    if (func) {
+      func(request.params.arguments);
+    }
   }
 }

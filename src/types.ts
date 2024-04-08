@@ -32,6 +32,9 @@ export interface InitializeResponse extends Response {
     capabilities: {
       textDocumentSync?: number,
       codeLensProvider?: object,
+      executeCommandProvider?: {
+        commands: string[],
+      },
     },
     serverInfo?: {
       name: string,
@@ -98,4 +101,15 @@ export interface CodeLens {
 
 export interface CodeLensResponse extends Response {
   result: CodeLens[] | null,
+}
+
+export interface ExecuteCommandRequest extends Request {
+  params: {
+    command: string,
+    arguments?: object,
+  },
+}
+
+export interface ExecuteCommandResponse extends Response {
+  result: any,
 }
