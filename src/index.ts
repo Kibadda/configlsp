@@ -2,18 +2,24 @@ import { log } from "./log";
 import { decode, encode } from "./rpc";
 import { State } from "./state";
 import {
-  CodeLensRequest,
-  CodeLensResponse,
+  Request,
+  Response
+} from "./types/base";
+import {
   DidChangeTextDocumentNotification,
   DidCloseTextDocumentNotification,
   DidOpenTextDocumentNotification,
+} from "./types/notification";
+import {
+  CodeLensRequest,
   ExecuteCommandRequest,
-  ExecuteCommandResponse,
   InitializeRequest,
+} from "./types/request";
+import {
+  CodeLensResponse,
+  ExecuteCommandResponse,
   InitializeResponse,
-  Request,
-  Response,
-} from "./types";
+} from "./types/response";
 
 log('Starting');
 

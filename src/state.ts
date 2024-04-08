@@ -1,13 +1,15 @@
 import { exec } from "child_process";
 import { Treesitter } from "./treesitter";
+import { CodeLens } from "./types/basic";
 import {
-  CodeLens,
-  CodeLensRequest,
   DidChangeTextDocumentNotification,
   DidCloseTextDocumentNotification,
   DidOpenTextDocumentNotification,
+} from "./types/notification";
+import {
+  CodeLensRequest,
   ExecuteCommandRequest,
-} from "./types";
+} from "./types/request";
 
 export class State {
   private textDocuments: Map<string, string> = new Map<string, string>();

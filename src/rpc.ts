@@ -3,7 +3,7 @@ import {
   Notification,
   Request,
   Response,
-} from "./types";
+} from "./types/base";
 
 export function decode(data: Buffer): Request | Notification | null {
   let split = data.toString().split(/\r\n\r\n/);
