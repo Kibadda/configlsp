@@ -1,0 +1,17 @@
+{
+  "name": "lsp",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "node out/index.js",
+    "compile": "tsc -b",
+    "watch": "tsc -b -w"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/node": "^20.12.2",
+    "typescript": "^5.4.3"
+  }
+}
