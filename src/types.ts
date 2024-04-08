@@ -9,8 +9,8 @@ export interface Request extends Message {
 }
 
 export interface Response extends Message {
-  id?: number | string | null,
-  result?: any | null,
+  id: number | string | null,
+  result?: any,
   error?: {
     code: number,
     message: string,
@@ -115,5 +115,5 @@ export interface ExecuteCommandRequest extends Request {
 }
 
 export interface ExecuteCommandResponse extends Response {
-  result: any,
+  result: null,
 }
