@@ -14,6 +14,8 @@ export class State {
   private codeLenses: Map<string, CodeLens[]> = new Map<string, CodeLens[]>();
   private commands: Map<string, Function> = new Map<string, Function>();
 
+  public isInitialized: boolean = false;
+
   constructor() {
     this.commands.set('open_plugin_in_browser', function(data: { text: string }) {
       exec(`xdg-open https://github.com/${data.text}`);

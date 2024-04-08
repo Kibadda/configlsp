@@ -31,6 +31,12 @@ process.stdin.on('data', data => {
     return;
   }
 
+  if (!['initialize', 'initialized'].includes(message.method) && !state.isInitialized) {
+    log('request/notification %s before initialized', message.method);
+
+    return;
+  }
+
   switch (message.method) {
     case 'initialize': {
       let request = message as InitializeRequest;
@@ -56,6 +62,14 @@ process.stdin.on('data', data => {
       };
 
       response(result);
+
+      break;
+    }
+
+    case 'initialized': {
+      log('initialized');
+
+      state.isInitialized = true;
 
       break;
     }
