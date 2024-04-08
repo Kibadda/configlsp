@@ -11,6 +11,7 @@ import {
   ExecuteCommandResponse,
   InitializeRequest,
   InitializeResponse,
+  Request,
   Response,
 } from "./types";
 
@@ -31,8 +32,14 @@ process.stdin.on('data', data => {
     return;
   }
 
-  if (!['initialize', 'initialized'].includes(message.method) && !state.isInitialized) {
+  if (!['initialize', 'initialized', 'exit'].includes(message.method) && !state.isInitialized) {
     log('request/notification %s before initialized', message.method);
+
+    return;
+  }
+
+  if (message.method != 'exit' && state.shouldExit) {
+    log('request/notification %s after shutdown', message.method);
 
     return;
   }
@@ -72,6 +79,30 @@ process.stdin.on('data', data => {
       state.isInitialized = true;
 
       break;
+    }
+
+    case 'shutdown': {
+      let request: Request = message as Request;
+
+      log('shutdown');
+
+      state.shouldExit = true;
+
+      let result: Response = {
+        id: request.id,
+        jsonrpc: request.jsonrpc,
+        result: null,
+      }
+
+      response(result);
+
+      break;
+    }
+
+    case 'exit': {
+      log('exit');
+
+      process.exit(!state.shouldExit ? 1 : 0);
     }
 
     case 'textDocument/didOpen': {

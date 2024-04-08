@@ -15,6 +15,7 @@ export class State {
   private commands: Map<string, Function> = new Map<string, Function>();
 
   public isInitialized: boolean = false;
+  public shouldExit: boolean = false;
 
   constructor() {
     this.commands.set('open_plugin_in_browser', function(data: { text: string }) {
