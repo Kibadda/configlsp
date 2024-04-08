@@ -11,6 +11,10 @@ export interface Request extends Message {
 export interface Response extends Message {
   id?: number | string | null,
   result?: any | null,
+  error?: {
+    code: number,
+    message: string,
+  },
 }
 
 export interface Notification extends Message {

@@ -29,11 +29,33 @@ process.stdin.on('data', data => {
   if (!message) {
     log('Something went wrong: %s', data.toString());
 
+    let result: Response = {
+      id: null,
+      jsonrpc: '2.0',
+      error: {
+        code: -32600,
+        message: 'invalid request',
+      },
+    };
+
+    response(result);
+
     return;
   }
 
   if (!['initialize', 'initialized', 'exit'].includes(message.method) && !state.isInitialized) {
     log('request/notification %s before initialized', message.method);
+
+    let result: Response = {
+      id: null,
+      jsonrpc: '2.0',
+      error: {
+        code: -32002,
+        message: 'server not initialized',
+      },
+    };
+
+    response(result);
 
     return;
   }
@@ -172,6 +194,17 @@ process.stdin.on('data', data => {
     default: {
       log('Method %s not found', message.method);
       log(JSON.stringify(message, null, 2));
+
+      let result: Response = {
+        id: null,
+        jsonrpc: '2.0',
+        error: {
+          code: -32602,
+          message: 'method not found',
+        },
+      };
+
+      response(result);
 
       break;
     }
