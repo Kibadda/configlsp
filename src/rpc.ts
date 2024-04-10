@@ -1,6 +1,29 @@
 import { log } from "./log";
 import { Request, Notification, Response } from "./lsp/base";
 
+export function split(data: Buffer): Buffer | null {
+  let split = data.toString().split(/\r\n\r\n/);
+
+  if (split.length < 2) {
+    return null;
+  }
+
+  let header = split[0];
+  let match = header.match(/^Content\-Length: (\d+)$/);
+
+  if (!match || match.length < 2) {
+    return null;
+  }
+
+  let length = parseInt(match[1]);
+
+  if (split[1].length < length) {
+    return null;
+  }
+
+  return data.subarray(0, header.length + 4 + length);
+}
+
 export function decode(data: Buffer): Request | Notification | null {
   let split = data.toString().split(/\r\n\r\n/);
 

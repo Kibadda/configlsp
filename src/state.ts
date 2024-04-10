@@ -1,8 +1,8 @@
 import { exec } from "child_process";
 import { Plugin, plugins } from "./treesitter";
-import { CodeLens, Hover } from "./lsp/basic";
+import { CodeLens } from "./lsp/basic";
 import { DidOpenNotification, DidSaveNotification, DidChangeNotification, DidCloseNotification } from "./lsp/notification";
-import { CodeLensRequest, ExecuteCommandRequest, HoverRequest } from "./lsp/request";
+import { CodeLensRequest, ExecuteCommandRequest } from "./lsp/request";
 
 export class State {
   private textDocuments: Map<string, string> = new Map();
