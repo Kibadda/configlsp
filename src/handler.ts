@@ -163,7 +163,9 @@ export async function handle(data: Buffer): Promise<Response | Message[] | null>
 
       log('requesting command %s', request.params.command);
 
-      state.executeCommand(request);
+      let messages: Message[] = [];
+
+      let additionalMessage = state.executeCommand(request);
 
       let response: ExecuteCommandResponse = {
         id: request.id,
@@ -171,7 +173,13 @@ export async function handle(data: Buffer): Promise<Response | Message[] | null>
         result: null,
       };
 
-      return response;
+      messages.push(response);
+
+      if (additionalMessage) {
+        messages.push(additionalMessage);
+      }
+
+      return messages;
     }
 
     default: {

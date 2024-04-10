@@ -3,19 +3,24 @@ import { Plugin, plugins } from "./treesitter";
 import { CodeLens } from "./lsp/basic";
 import { DidOpenNotification, DidSaveNotification, DidChangeNotification, DidCloseNotification } from "./lsp/notification";
 import { CodeLensRequest, ExecuteCommandRequest } from "./lsp/request";
+import { Message, Request } from "./lsp/base";
 
 export class State {
   private textDocuments: Map<string, string> = new Map();
-  private commands: Map<string, Function> = new Map();
+  private commands: Map<string, (data: any) => Request | null> = new Map();
 
   private plugins: Map<string, Plugin[]> = new Map();
+
+  private id: number = 0;
 
   public isInitialized: boolean = false;
   public shouldExit: boolean = false;
 
   constructor() {
-    this.commands.set('open_plugin_in_browser', function(data: { text: string }) {
+    this.commands.set('open_plugin_in_browser', function(data: { text: string }): null {
       exec(`xdg-open https://github.com/${data.text}`);
+
+      return null;
     });
   }
 
@@ -138,11 +143,19 @@ export class State {
     return keys;
   }
 
-  public executeCommand(request: ExecuteCommandRequest): void {
+  public executeCommand(request: ExecuteCommandRequest): Message | null {
     let func = this.commands.get(request.params.command);
 
     if (func) {
-      func(request.params.arguments);
+      let message = func(request.params.arguments);
+
+      if (message) {
+        message.id = this.id++;
+
+        return message;
+      }
     }
+
+    return null;
   }
 }
