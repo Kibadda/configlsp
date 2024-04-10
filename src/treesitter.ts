@@ -4,21 +4,23 @@ import * as Lua from "@tree-sitter-grammars/tree-sitter-lua";
 const parser = new Parser();
 parser.setLanguage(Lua);
 
-export interface Plugin {
-  range: {
-    start: {
-      row: number,
-      column: number,
-    },
-    end: {
-      row: number,
-      column: number,
-    },
+interface Range {
+  start: {
+    row: number,
+    column: number,
   },
+  end: {
+    row: number,
+    column: number,
+  },
+}
+
+export interface Capture {
+  range: Range,
   text: string,
 }
 
-export function plugins(text: string): Plugin[] {
+export function plugins(text: string): Capture[] {
   let root = parser.parse(text).rootNode;
   let query = new Parser.Query(Lua, `
       (chunk

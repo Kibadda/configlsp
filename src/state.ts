@@ -1,5 +1,5 @@
 import { exec } from "child_process";
-import { Plugin, plugins } from "./treesitter";
+import { Capture, plugins } from "./treesitter";
 import { CodeLens } from "./lsp/basic";
 import { DidOpenNotification, DidSaveNotification, DidChangeNotification, DidCloseNotification } from "./lsp/notification";
 import { CodeLensRequest, ExecuteCommandRequest } from "./lsp/request";
@@ -9,7 +9,7 @@ export class State {
   private textDocuments: Map<string, string> = new Map();
   private commands: Map<string, (data: any) => Request | null> = new Map();
 
-  private plugins: Map<string, Plugin[]> = new Map();
+  private plugins: Map<string, Capture[]> = new Map();
 
   private id: number = 0;
 
@@ -24,7 +24,7 @@ export class State {
     });
   }
 
-  private setPlugins(uri: string): void {
+  private evaluate(uri: string): void {
     let document = this.textDocuments.get(uri);
 
     if (!document) {
@@ -36,14 +36,14 @@ export class State {
 
   public openTextDocument(notification: DidOpenNotification): void {
     this.textDocuments.set(notification.params.textDocument.uri, notification.params.textDocument.text);
-    this.setPlugins(notification.params.textDocument.uri);
+    this.evaluate(notification.params.textDocument.uri);
   }
 
   public saveTextDocument(notification: DidSaveNotification): void {
     if (notification.params.text) {
       this.textDocuments.set(notification.params.textDocument.uri, notification.params.text);
     }
-    this.setPlugins(notification.params.textDocument.uri);
+    this.evaluate(notification.params.textDocument.uri);
   }
 
   public changeTextDocument(notification: DidChangeNotification): void {
@@ -99,7 +99,7 @@ export class State {
     }
 
     this.textDocuments.set(notification.params.textDocument.uri, document);
-    this.setPlugins(notification.params.textDocument.uri);
+    this.evaluate(notification.params.textDocument.uri);
   }
 
   public closeTextDocument(notification: DidCloseNotification): void {
