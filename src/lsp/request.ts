@@ -38,3 +38,11 @@ export interface WorkspaceEditRequest extends Request {
     },
   },
 }
+
+export interface CodeActionRequest extends Request {
+  params: {
+    textDocument: {
+      uri: string,
+    },
+  },
+}

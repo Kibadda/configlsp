@@ -8,11 +8,13 @@ export interface Range {
   end: Position,
 }
 
+export interface Command {
+  title: string,
+  command: string,
+  arguments?: object,
+}
+
 export interface CodeLens {
   range: Range,
-  command: {
-    title: string,
-    command: string,
-    arguments?: object,
-  },
+  command: Command,
 }

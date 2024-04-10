@@ -1,8 +1,8 @@
 import { exec } from "child_process";
 import { Capture, enabled, plugins } from "./treesitter";
-import { CodeLens } from "./lsp/basic";
+import { CodeLens, Command } from "./lsp/basic";
 import { DidOpenNotification, DidSaveNotification, DidChangeNotification, DidCloseNotification } from "./lsp/notification";
-import { CodeLensRequest, ExecuteCommandRequest, WorkspaceEditRequest } from "./lsp/request";
+import { CodeActionRequest, CodeLensRequest, ExecuteCommandRequest, WorkspaceEditRequest } from "./lsp/request";
 import { Message, Request } from "./lsp/base";
 
 export class State {
@@ -244,6 +244,35 @@ export class State {
     }
 
     return codelenses;
+  }
+
+  public getCodeActions(request: CodeActionRequest): Command[] {
+    let commands: Command[] = [];
+
+    for (const plugin of this.plugins.get(request.params.textDocument.uri) ?? []) {
+      commands.push({
+        title: `open ${plugin.text}`,
+        command: 'open_plugin_in_browser',
+        arguments: {
+          text: plugin.text,
+        },
+      });
+    }
+
+    let capture = this.enabled.get(request.params.textDocument.uri);
+
+    if (!capture || capture.text == 'true' || capture.text == 'false') {
+      commands.push({
+        title: `${!capture || capture.text == 'true' ? 'disable' : 'enable'} plugin`,
+        command: 'toggle_plugin',
+        arguments: {
+          enabled: capture ?? null,
+          uri: request.params.textDocument.uri,
+        },
+      });
+    }
+
+    return commands;
   }
 
   public getCommands(): string[] {

@@ -1,5 +1,5 @@
 import { Response } from "./base";
-import { CodeLens } from "./basic";
+import { CodeLens, Command } from "./basic";
 
 export interface InitializeResponse extends Response {
   result: {
@@ -9,6 +9,7 @@ export interface InitializeResponse extends Response {
       executeCommandProvider?: {
         commands: string[],
       },
+      codeActionProvider?: boolean,
     },
     serverInfo?: {
       name: string,
@@ -23,4 +24,8 @@ export interface CodeLensResponse extends Response {
 
 export interface ExecuteCommandResponse extends Response {
   result: null,
+}
+
+export interface CodeActionResponse extends Response {
+  result: Command[] | null,
 }

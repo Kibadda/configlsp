@@ -2,8 +2,8 @@ import { log } from "./log";
 import { decode } from "./rpc";
 import { Message, Request, Response } from "./lsp/base";
 import { State } from "./state";
-import { CodeLensRequest, ExecuteCommandRequest, InitializeRequest } from "./lsp/request";
-import { CodeLensResponse, ExecuteCommandResponse, InitializeResponse } from "./lsp/response";
+import { CodeActionRequest, CodeLensRequest, ExecuteCommandRequest, InitializeRequest } from "./lsp/request";
+import { CodeActionResponse, CodeLensResponse, ExecuteCommandResponse, InitializeResponse } from "./lsp/response";
 import { DidChangeNotification, DidCloseNotification, DidOpenNotification, DidSaveNotification } from "./lsp/notification";
 
 const state = new State();
@@ -67,6 +67,7 @@ export async function handle(data: Buffer): Promise<Response | Message[] | null>
             executeCommandProvider: {
               commands: state.getCommands(),
             },
+            codeActionProvider: true,
           },
         },
       };
@@ -180,6 +181,20 @@ export async function handle(data: Buffer): Promise<Response | Message[] | null>
       }
 
       return messages;
+    }
+
+    case 'textDocument/codeAction': {
+      let request = message as CodeActionRequest;
+
+      log('requesting codeactions for %s', request.params.textDocument.uri);
+
+      let response: CodeActionResponse = {
+        id: request.id,
+        jsonrpc: request.jsonrpc,
+        result: state.getCodeActions(request),
+      };
+
+      return response;
     }
 
     default: {
