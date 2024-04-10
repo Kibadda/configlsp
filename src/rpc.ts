@@ -1,5 +1,5 @@
 import { log } from "./log";
-import { Request, Notification, Response } from "./lsp/base";
+import { Request, Notification, Message } from "./lsp/base";
 
 export function split(data: Buffer): Buffer | null {
   let split = data.toString().split(/\r\n\r\n/);
@@ -56,7 +56,7 @@ export function decode(data: Buffer): Request | Notification | null {
   return JSON.parse(content);
 }
 
-export function encode(data: Response): string {
+export function encode(data: Message): string {
   let content = JSON.stringify(data);
 
   return `Content-Length: ${content.length}\r\n\r\n${content}`;

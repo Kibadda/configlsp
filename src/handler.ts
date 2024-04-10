@@ -1,6 +1,6 @@
 import { log } from "./log";
 import { decode } from "./rpc";
-import { Request, Response } from "./lsp/base";
+import { Message, Request, Response } from "./lsp/base";
 import { State } from "./state";
 import { CodeLensRequest, ExecuteCommandRequest, InitializeRequest } from "./lsp/request";
 import { CodeLensResponse, ExecuteCommandResponse, InitializeResponse } from "./lsp/response";
@@ -8,7 +8,7 @@ import { DidChangeNotification, DidCloseNotification, DidOpenNotification, DidSa
 
 const state = new State();
 
-export async function handle(data: Buffer): Promise<Response | null> {
+export async function handle(data: Buffer): Promise<Response | Message[] | null> {
   let message = decode(data);
 
   if (!message) {

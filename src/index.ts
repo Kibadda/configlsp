@@ -19,9 +19,13 @@ listener.on('data', () => {
   if (data) {
     buffer = buffer.subarray(data.length);
 
-    handle(data).then(response => {
-      if (response) {
-        process.stdout.write(encode(response));
+    handle(data).then(message => {
+      if (Array.isArray(message)) {
+        message.forEach(m => {
+          process.stdout.write(encode(m));
+        });
+      } else if (message) {
+        process.stdout.write(encode(message));
       }
     });
 
