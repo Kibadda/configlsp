@@ -186,16 +186,18 @@ export async function handle(data: Buffer): Promise<Response | Message[] | null>
       log('Method %s not found', message.method);
       log(JSON.stringify(message, null, 2));
 
-      let response: Response = {
-        id: null,
-        jsonrpc: '2.0',
-        error: {
-          code: -32602,
-          message: 'method not found',
-        },
-      };
+      // let response: Response = {
+      //   id: null,
+      //   jsonrpc: '2.0',
+      //   error: {
+      //     code: -32602,
+      //     message: 'method not found',
+      //   },
+      // };
 
-      return response;
+      // return response;
+
+      return null;
     }
   }
 }
