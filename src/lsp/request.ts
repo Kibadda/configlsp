@@ -1,4 +1,5 @@
 import { Request } from "./base";
+import { Range } from "./basic";
 
 export interface InitializeRequest extends Request {
   params: {
@@ -21,5 +22,19 @@ export interface ExecuteCommandRequest extends Request {
   params: {
     command: string,
     arguments?: object,
+  },
+}
+
+export interface WorkspaceEditRequest extends Request {
+  params: {
+    label?: string,
+    edit: {
+      changes?: {
+        [uri: string]: {
+          range: Range,
+          newText: string,
+        }[],
+      },
+    },
   },
 }

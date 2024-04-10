@@ -1,8 +1,8 @@
 import { exec } from "child_process";
-import { Capture, plugins } from "./treesitter";
+import { Capture, enabled, plugins } from "./treesitter";
 import { CodeLens } from "./lsp/basic";
 import { DidOpenNotification, DidSaveNotification, DidChangeNotification, DidCloseNotification } from "./lsp/notification";
-import { CodeLensRequest, ExecuteCommandRequest } from "./lsp/request";
+import { CodeLensRequest, ExecuteCommandRequest, WorkspaceEditRequest } from "./lsp/request";
 import { Message, Request } from "./lsp/base";
 
 export class State {
@@ -10,6 +10,7 @@ export class State {
   private commands: Map<string, (data: any) => Request | null> = new Map();
 
   private plugins: Map<string, Capture[]> = new Map();
+  private enabled: Map<string, Capture | null> = new Map();
 
   private id: number = 0;
 
@@ -22,6 +23,90 @@ export class State {
 
       return null;
     });
+
+    this.commands.set('toggle_plugin', function(data: { enabled: Capture | null, uri: string }): WorkspaceEditRequest | null {
+      let edit: WorkspaceEditRequest = {
+        id: -1,
+        jsonrpc: '2.0',
+        method: 'workspace/applyEdit',
+        params: {
+          edit: {}
+        },
+      }
+
+      if (!data.enabled) {
+        edit.params = {
+          label: 'disable plugin',
+          edit: {
+            changes: {
+              [data.uri]: [
+                {
+                  range: {
+                    start: {
+                      line: 2,
+                      character: 0,
+                    },
+                    end: {
+                      line: 2,
+                      character: 0,
+                    },
+                  },
+                  newText: '  enabled = false,\n',
+                },
+              ],
+            }
+          }
+        };
+      } else if (data.enabled.text == 'true') {
+        edit.params = {
+          label: 'disable plugin',
+          edit: {
+            changes: {
+              [data.uri]: [
+                {
+                  range: {
+                    start: {
+                      line: data.enabled.range.start.row,
+                      character: data.enabled.range.start.column,
+                    },
+                    end: {
+                      line: data.enabled.range.end.row,
+                      character: data.enabled.range.end.column,
+                    },
+                  },
+                  newText: 'enabled = false',
+                },
+              ],
+            },
+          },
+        };
+      } else if (data.enabled.text == 'false') {
+        edit.params = {
+          label: 'enable plugin',
+          edit: {
+            changes: {
+              [data.uri]: [
+                {
+                  range: {
+                    start: {
+                      line: data.enabled.range.start.row,
+                      character: 0,
+                    },
+                    end: {
+                      line: data.enabled.range.end.row + 1,
+                      character: 0,
+                    },
+                  },
+                  newText: '',
+                },
+              ],
+            },
+          },
+        };
+      }
+
+      return edit.params.label ? edit : null;
+    });
   }
 
   private evaluate(uri: string): void {
@@ -32,6 +117,7 @@ export class State {
     }
 
     this.plugins.set(uri, plugins(document));
+    this.enabled.set(uri, enabled(document));
   }
 
   public openTextDocument(notification: DidOpenNotification): void {
@@ -127,6 +213,31 @@ export class State {
           command: 'open_plugin_in_browser',
           arguments: {
             text: plugin.text,
+          },
+        },
+      });
+    }
+
+    let capture = this.enabled.get(request.params.textDocument.uri);
+
+    if (!capture || capture.text == 'true' || capture.text == 'false') {
+      codelenses.push({
+        range: {
+          start: {
+            line: 0,
+            character: 0,
+          },
+          end: {
+            line: 1,
+            character: 0,
+          },
+        },
+        command: {
+          title: !capture || capture.text == 'true' ? 'disable' : 'enable',
+          command: 'toggle_plugin',
+          arguments: {
+            enabled: capture ?? null,
+            uri: request.params.textDocument.uri,
           },
         },
       });
