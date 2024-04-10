@@ -23,28 +23,28 @@ export interface Capture {
 export function plugins(text: string): Capture[] {
   let root = parser.parse(text).rootNode;
   let query = new Parser.Query(Lua, `
-      (chunk
-        (return_statement
-          (expression_list
-            (table_constructor
-              [
-                (field
-                  !name
-                  value: (string content: (string_content) @plugin))
-                (field
-                  name: (identifier) @_dependencies (#eq? @_dependencies "dependencies")
-                  value: (table_constructor
-                    (field
-                      !name
-                      value: [
-                        (string content: (string_content) @plugin)
-                        (table_constructor
-                          (field
-                            !name
-                            value: (string content: (string_content) @plugin)))
-                      ])))
-              ]))))
-    `);
+    (chunk
+      (return_statement
+        (expression_list
+          (table_constructor
+            [
+              (field
+                !name
+                value: (string content: (string_content) @plugin))
+              (field
+                name: (identifier) @_dependencies (#eq? @_dependencies "dependencies")
+                value: (table_constructor
+                  (field
+                    !name
+                    value: [
+                      (string content: (string_content) @plugin)
+                      (table_constructor
+                        (field
+                          !name
+                          value: (string content: (string_content) @plugin)))
+                    ])))
+            ]))))
+  `);
 
   let plugins = [];
 
