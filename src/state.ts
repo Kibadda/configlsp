@@ -209,7 +209,7 @@ export class State {
           },
         },
         command: {
-          title: 'open plugin',
+          title: 'open',
           command: 'open_plugin_in_browser',
           arguments: {
             text: plugin.text,
