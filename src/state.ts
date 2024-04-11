@@ -110,6 +110,10 @@ export class State {
   }
 
   private evaluate(uri: string): void {
+    if (!this.isPluginFile(uri)) {
+      return;
+    }
+
     let document = this.textDocuments.get(uri);
 
     if (!document) {
@@ -220,7 +224,7 @@ export class State {
 
     let capture = this.enabled.get(request.params.textDocument.uri);
 
-    if (!capture || capture.text == 'true' || capture.text == 'false') {
+    if (this.isPluginFile(request.params.textDocument.uri) && (!capture || capture.text == 'true' || capture.text == 'false')) {
       codelenses.push({
         range: {
           start: {
@@ -261,7 +265,7 @@ export class State {
 
     let capture = this.enabled.get(request.params.textDocument.uri);
 
-    if (!capture || capture.text == 'true' || capture.text == 'false') {
+    if (this.isPluginFile(request.params.textDocument.uri) && (!capture || capture.text == 'true' || capture.text == 'false')) {
       commands.push({
         title: `${!capture || capture.text == 'true' ? 'disable' : 'enable'} plugin`,
         command: 'toggle_plugin',
@@ -297,5 +301,9 @@ export class State {
     }
 
     return null;
+  }
+
+  private isPluginFile(uri: string): boolean {
+    return /.*lua\/user\/plugins\/(?:[^\/\.]+\.lua|[^\/]+\/init\.lua)/.test(uri);
   }
 }
