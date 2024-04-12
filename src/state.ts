@@ -110,13 +110,16 @@ export class State {
   }
 
   private evaluate(uri: string): void {
+    this.plugins.set(uri, []);
+    this.enabled.set(uri, null);
+
     if (!this.isPluginFile(uri)) {
       return;
     }
 
     let document = this.textDocuments.get(uri);
 
-    if (!document) {
+    if (document == undefined) {
       return;
     }
 
@@ -139,7 +142,7 @@ export class State {
   public changeTextDocument(notification: DidChangeNotification): void {
     let document = this.textDocuments.get(notification.params.textDocument.uri);
 
-    if (!document) {
+    if (document == undefined) {
       return;
     }
 
