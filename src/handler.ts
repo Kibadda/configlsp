@@ -58,8 +58,8 @@ export async function handle(data: Buffer): Promise<Response | Message[] | null>
         jsonrpc: request.jsonrpc,
         result: {
           serverInfo: {
-            name: 'configlsp',
-            version: '0.1',
+            name: 'nvimls',
+            version: '1.0.1',
           },
           capabilities: {
             textDocumentSync: 2,
